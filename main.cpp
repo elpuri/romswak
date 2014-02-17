@@ -109,19 +109,46 @@ int main(int argc, char *argv[])
 
         float offset = getFloatArg(a, "-offset");
 
-        writeMifHeader(a, output, length, width);
-        output << endl;
+        if (a.arguments().contains("-mif")) {
+            writeMifHeader(a, output, length, width);
+            output << endl;
 
-        double phase = 0.0;
-        for (int i = 0; i < length; i++) {
-            double value = 0.5 * sin(phase) + offset + (doSigned ? 0.0 : 0.5);
-            int intValue = floor(value * scale) + (doSigned ? 0 : 1);
+            double phase = 0.0;
+            for (int i = 0; i < length; i++) {
+                double value = 0.5 * sin(phase) + offset + (doSigned ? 0.0 : 0.5);
+                int intValue = floor(value * scale) + (doSigned ? 0 : 1);
 
-            output << i << " : " << intToBin(intValue, width) << ";       -- " << intValue << endl;
-            phase += 2.0 * M_PI / length;
+                output << i << " : " << intToBin(intValue, width) << ";       -- " << intValue << endl;
+                phase += 2.0 * M_PI / length;
+            }
+            output << endl;
+            writeMifFooter(output);
+        } else {
+            // Write raw
+            int outputWordBytes;
+            if (width <= 8)
+                outputWordBytes = 1;
+            else if(width <= 16)
+                outputWordBytes = 2;
+            else if(width <= 24)
+                outputWordBytes = 3;
+            else if(width <= 32)
+                outputWordBytes = 4;
+            double phase = 0.0;
+            for (int i = 0; i < length; i++) {
+                double value = 0.5 * sin(phase) + offset + (doSigned ? 0.0 : 0.5);
+                int intValue = floor(value * scale) + (doSigned ? 0 : 1);
+
+                // write big endian
+                for (int j = 0; j < outputWordBytes; j++) {
+                    char byte = (intValue >> ((outputWordBytes - j - 1) * 8)) & 0xFF;
+                    outputFile.write(&byte, 1);
+                }
+
+                phase += 2.0 * M_PI / length;
+            }
         }
-        output << endl;
-        writeMifFooter(output);
+
 
     } else if (a.arguments().at(1) == "data") {
         bool mifOutput = a.arguments().contains("-mif");
@@ -206,9 +233,10 @@ int main(int argc, char *argv[])
             int byteIndex = 0;
             for (int i = 0; i < wordCount; i++) {
                 int word = 0;
+                // Read big endian
                 for (int j=0; j < inputWordBytes; j++) {
                     word = word << 8;
-                    word |= data.at(byteIndex);
+                    word |= (unsigned char) data.at(byteIndex);
                     byteIndex++;
                 }
                 output << i << " : " << intToBin(word, width) << ";" << endl;
