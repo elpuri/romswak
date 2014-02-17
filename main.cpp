@@ -28,7 +28,7 @@ double getFloatArg(QCoreApplication& a, QString argName) {
 }
 
 void usage() {
-    qDebug() << "Usage: romswak sine -width <word width> -length <length in words> -o <output file> [-signed] [-mif]";
+    qDebug() << "Usage: romswak sine -width <word width> -length <length in words> [-amplitude <wave amplitude>] -o <output file> [-signed] [-mif]";
     qDebug() << "       romswak data <intput file,[offset],[length]> [<intput file,[offset],[length]>]... -width <word width> -o <output file> [-mif]";
 }
 
@@ -53,7 +53,7 @@ void writeMifHeader(QCoreApplication& a, QTextStream& out, int wordCount, int wo
 
 void writeMifFooter(QTextStream& out)
 {
-    out << "END;";
+    out << "END;" << endl;
 }
 
 QString intToBin(int a, int width) {
@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
 
         float offset = getFloatArg(a, "-offset");
 
-        if (a.arguments().contains("-raw"))
         writeMifHeader(a, output, length, width);
         output << endl;
 
