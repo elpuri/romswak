@@ -1,0 +1,9 @@
+*.bak
+*.pro.user.*
+*.pro.user
+moc_*
+*.autosave
+Makefile*
+romswak
+*.mif
+*.o
