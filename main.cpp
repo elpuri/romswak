@@ -29,7 +29,7 @@ double getFloatArg(QCoreApplication& a, QString argName) {
 
 void usage() {
     qDebug() << "Usage: romswak sine -width <word width> -length <length in words> [-amplitude <wave amplitude>] -o <output file> [-signed] [-mif]";
-    qDebug() << "       romswak data <intput file,[offset],[length]> [<intput file,[offset],[length]>]... -width <word width> -o <output file> [-mif]";
+    qDebug() << "       romswak data <input file,[offset],[length]> [<input file,[offset],[length]>]... -width <word width> -o <output file> [-mif]";
 }
 
 void writeMifHeader(QCoreApplication& a, QTextStream& out, int wordCount, int wordWidth) {
